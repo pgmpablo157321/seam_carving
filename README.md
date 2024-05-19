@@ -5,7 +5,7 @@ Currently on development.
 
 ## Requirements
 
-- opencv
+- opencv (sudo apt-get install -y libopencv-dev)
 - cuda with nvcc
 - An Nvidia GPU compatible with cuda and Nvidia drivers
 
@@ -22,7 +22,7 @@ cd src
 ```
 4. Compile the application using nvcc with opencv and x11 (on linux) as dependencies:
 ```
-/usr/local/cuda/bin/nvcc -arch=sm_XX -g main seam_carving.cu display.cpp energy.cu loader.cpp -o main $(pkg-config --cflags --libs opencv4) -lX11
+/usr/local/cuda/bin/nvcc -arch=sm_XX -g main.cu seam_carving.cu display.cpp energy.cu loader.cpp -o main $(pkg-config --cflags --libs opencv4) -lX11
 ```
 Note that the sm_XX value is dependent on the GPU you are running
 5. Run the application:
