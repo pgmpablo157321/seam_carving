@@ -55,12 +55,12 @@ __global__ void verticalLeastEnergyPath(float *m, int *path, int rows,
   for (int i = rows - 2; i >= 0; i--) {
     *(path + i) = *(path + (i + 1));
     if (*(path + (i + 1)) > 0 && *(m + i * cols + *(path + (i + 1)) - 1) <
-                                     *(m + i * cols + *(path + (i + 1)))) {
+                                     *(m + i * cols + *(path + i))) {
       *(path + i) = *(path + (i + 1)) - 1;
     }
     if (*(path + (i + 1)) < (cols - 1) &&
-        (*(m + i * cols + (*(path + (i + 1)) + 1)) <
-         *(m + i * cols + *(path + (i + 1))))) {
+        (*(m + i * cols + *(path + (i + 1)) + 1) <
+         *(m + i * cols + *(path + i)))) {
       *(path + i) = *(path + (i + 1)) + 1;
     }
   }
