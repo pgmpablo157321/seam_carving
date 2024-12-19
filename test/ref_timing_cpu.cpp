@@ -1,5 +1,5 @@
-#include "display.h"
-#include "loader.h"
+#include "../src/display.h"
+#include "../src/loader.h"
 
 #include <iostream>
 #include <stdio.h>
@@ -122,7 +122,7 @@ void removePath(float *energy, int *path, int rows, int cols) {
 }
 
 int main() {
-  Loader l("../assets/02_chameleon.jpeg", mode::Color);
+  Loader l("assets/02_chameleon.jpeg", mode::Color);
   int *shape = l.getShape();
   int rows = *(shape + 1), cols = *(shape + 2), channels = *shape;
   float *img = l.getPixelArray();
@@ -161,5 +161,5 @@ int main() {
   auto global_duration = std::chrono::duration_cast<std::chrono::microseconds>(
       global_stop - global_start);
   std::cout << "End to end timing: " << global_duration.count() << "\n";
-  d.imwrite("../assets/reduced_energy_cpu.jpeg");
+  d.imwrite("assets/reduced_energy_cpu.jpeg");
 }

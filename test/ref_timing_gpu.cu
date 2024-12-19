@@ -1,15 +1,15 @@
-#include "display.h"
-#include "energy.h"
-#include "loader.h"
+#include "../src/display.h"
+#include "../src/energy.h"
+#include "../src/loader.h"
 
-#include "seam_carving.h"
+#include "../src/seam_carving.h"
 #include <iostream>
 #include <stdio.h>
 // Import timing
 #include <chrono>
 
 int main() {
-  Loader l("../assets/02_chameleon.jpeg", mode::Color);
+  Loader l("assets/02_chameleon.jpeg", mode::Color);
   int *shape = l.getShape();
   int rows = *(shape + 1), cols = *(shape + 2), channels = *shape;
   float *e = NULL;
@@ -52,6 +52,6 @@ int main() {
   auto global_duration = std::chrono::duration_cast<std::chrono::microseconds>(
       global_stop - global_start);
   std::cout << "End to end timing: " << global_duration.count() << "\n";
-  d.imwrite("../assets/reduced_energy_gpu.jpeg");
+  d.imwrite("assets/reduced_energy_gpu_new.jpeg");
   return 0;
 }
