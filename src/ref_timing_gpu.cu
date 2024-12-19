@@ -9,7 +9,7 @@
 #include <chrono>
 
 int main() {
-  Loader l("../assets/<name_of_image_file>", mode::Color);
+  Loader l("../assets/02_chameleon.jpeg", mode::Color);
   int *shape = l.getShape();
   int rows = *(shape + 1), cols = *(shape + 2), channels = *shape;
   float *e = NULL;
@@ -41,11 +41,17 @@ int main() {
         std::chrono::duration_cast<std::chrono::microseconds>(stop - start);
     std::cout << "Time to least path: " << duration.count() << "\n";
   }
-
+  g.setInputDevice(Device::GPU);
+  g.setCols(cols - n);
+  g.setEnergy(e);
+  g.setOutputDevice(Device::CPU);
+  float *re = NULL;
+  g.getEnergy(&re);
+  ImageDisplay d(re, rows, cols - n, 1, true);
   auto global_stop = std::chrono::high_resolution_clock::now();
   auto global_duration = std::chrono::duration_cast<std::chrono::microseconds>(
       global_stop - global_start);
   std::cout << "End to end timing: " << global_duration.count() << "\n";
-
+  d.imwrite("../assets/reduced_energy_gpu.jpeg");
   return 0;
 }

@@ -8,50 +8,50 @@
 
 float *computeEnergy(float *img, int rows, int cols, int channels) {
   float *energy = (float *)malloc(rows * cols * sizeof(float));
-  int sx = 0, sy = 0;
+  float sx = 0, sy = 0;
   for (int i = 0; i < rows; i++) {
     for (int j = 0; j < cols; j++) {
       sx = 0;
       sy = 0;
       for (int k = 0; k < channels; k++) {
         if (i > 0) {
-          sx -= 2 * (*(img + k * cols * rows + (i - 1) * cols + j));
+          sx += 2 * (*(img + k * cols * rows + (i - 1) * cols + j));
           if (j > 0) {
-            sx -= *(img + k * cols * rows + (i - 1) * cols + (j - 1));
+            sx += *(img + k * cols * rows + (i - 1) * cols + (j - 1));
           }
           if (j < cols - 1) {
-            sx -= *(img + k * cols * rows + (i - 1) * cols + (j + 1));
+            sx += *(img + k * cols * rows + (i - 1) * cols + (j + 1));
           }
         }
         if (i < rows - 1) {
-          sx += 2 * (*(img + k * cols * rows + (i + 1) * cols + j));
+          sx -= 2 * (*(img + k * cols * rows + (i + 1) * cols + j));
           if (j > 0) {
-            sx += *(img + k * cols * rows + (i + 1) * cols + (j - 1));
+            sx -= *(img + k * cols * rows + (i + 1) * cols + (j - 1));
           }
           if (j < cols - 1) {
-            sx += *(img + k * cols * rows + (i + 1) * cols + (j + 1));
+            sx -= *(img + k * cols * rows + (i + 1) * cols + (j + 1));
           }
         }
         if (j > 0) {
-          sy -= 2 * (*(img + k * cols * rows + i * cols + (j - 1)));
+          sy += 2 * (*(img + k * cols * rows + i * cols + (j - 1)));
           if (i > 0) {
-            sy -= *(img + k * cols * rows + (i - 1) * cols + (j - 1));
+            sy += *(img + k * cols * rows + (i - 1) * cols + (j - 1));
           }
           if (i < rows - 1) {
-            sy -= *(img + k * cols * rows + (i + 1) * cols + (j - 1));
+            sy += *(img + k * cols * rows + (i + 1) * cols + (j - 1));
           }
         }
         if (j < cols - 1) {
-          sy += 2 * (*(img + k * cols * rows + i * cols + (j + 1)));
+          sy -= 2 * (*(img + k * cols * rows + i * cols + (j + 1)));
           if (i > 0) {
-            sy += *(img + k * cols * rows + (i - 1) * cols + (j + 1));
+            sy -= *(img + k * cols * rows + (i - 1) * cols + (j + 1));
           }
-          if (i < cols - 1) {
-            sy += *(img + k * cols * rows + (i + 1) * cols + (j + 1));
+          if (i < rows - 1) {
+            sy -= *(img + k * cols * rows + (i + 1) * cols + (j + 1));
           }
         }
       }
-      *(energy + cols * i + j) = sqrt(pow(sx, 2) + pow(sx, 2));
+      *(energy + cols * i + j) = sqrt(pow(sx, 2) + pow(sy, 2));
     }
   }
   return energy;
@@ -59,7 +59,7 @@ float *computeEnergy(float *img, int rows, int cols, int channels) {
 
 float *computeEnergyPaths(float *energy, int rows, int cols) {
   float *energy_paths = (float *)malloc(rows * cols * sizeof(float));
-  int aux = 0;
+  float aux = 0;
   for (int i = 0; i < rows; i++) {
     for (int j = 0; j < cols; j++) {
       aux = 0;
@@ -96,12 +96,12 @@ int *computeLeastEnergyPath(float *energy, int rows, int cols) {
     *(path + i) = *(path + (i + 1));
     if (*(path + (i + 1)) > 0 &&
         *(energyPaths + i * cols + *(path + (i + 1)) - 1) <
-            *(energyPaths + i * cols + *(path + (i + 1)))) {
+            *(energyPaths + i * cols + *(path + i))) {
       *(path + i) = *(path + (i + 1)) - 1;
     }
     if (*(path + (i + 1)) < (cols - 1) &&
         (*(energyPaths + i * cols + (*(path + (i + 1)) + 1)) <
-         *(energyPaths + i * cols + *(path + (i + 1))))) {
+         *(energyPaths + i * cols + *(path + i)))) {
       *(path + i) = *(path + (i + 1)) + 1;
     }
   }
@@ -112,18 +112,17 @@ void removePath(float *energy, int *path, int rows, int cols) {
   int offset = 0;
   for (int i = 0; i < rows; i++) {
     for (int j = 0; j < cols; j++) {
-      if (j != *(path + i)) {
-        if ((i * cols + j + offset) < rows * cols)
-          *(energy + i * cols + j) = *(energy + i * cols + j + offset);
-      } else {
+      if (j == *(path + i)) {
         offset += 1;
+      } else {
+        *(energy + i * cols + j - offset) = *(energy + i * cols + j);
       }
     }
   }
 }
 
 int main() {
-  Loader l("../assets/<name_of_image_file>", mode::Color);
+  Loader l("../assets/02_chameleon.jpeg", mode::Color);
   int *shape = l.getShape();
   int rows = *(shape + 1), cols = *(shape + 2), channels = *shape;
   float *img = l.getPixelArray();
@@ -139,14 +138,13 @@ int main() {
   std::cout << "Time to compute energy: " << duration.count() << "\n";
 
   // Display energy
-  // ImageDisplay d(energy, rows, cols, 1, true);
   // d.setWindowDims(cols / 2, rows);
   // d.setWindowName("Original Energy");
   // d.displayImage();
   for (int i = 1; i < n; i++) {
     start = std::chrono::high_resolution_clock::now();
     // Find and get least energy path
-    int *path = computeLeastEnergyPath(energy, cols, rows);
+    int *path = computeLeastEnergyPath(energy, rows, cols);
     // Remove path from energy and image
     removePath(energy, path, rows, cols);
     cols--;
@@ -155,12 +153,13 @@ int main() {
         std::chrono::duration_cast<std::chrono::microseconds>(stop - start);
     std::cout << "Time to least path: " << duration.count() << "\n";
   }
-  // d.update(energy, rows, cols, 1, true);
-  // d.setWindowDims(cols / 2, rows);
-  // d.setWindowName("Reduced Energy");
-  // d.displayImage();
+  ImageDisplay d(energy, rows, cols, 1, true);
+  //  d.setWindowDims(cols / 2, rows);
+  //  d.setWindowName("Reduced Energy");
+  //  d.displayImage();
   auto global_stop = std::chrono::high_resolution_clock::now();
   auto global_duration = std::chrono::duration_cast<std::chrono::microseconds>(
       global_stop - global_start);
   std::cout << "End to end timing: " << global_duration.count() << "\n";
+  d.imwrite("../assets/reduced_energy_cpu.jpeg");
 }
