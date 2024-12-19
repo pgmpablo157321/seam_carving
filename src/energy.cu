@@ -14,7 +14,7 @@ __global__ void gradients(float *img, float *kx, float *ky, float *gx,
     for (int i = 0; i < kernel_size; i++) {
       int offset_rows = i - kernel_size / 2;
       for (int j = 0; j < kernel_size; j++) {
-        int offset_cols = i - kernel_size / 2;
+        int offset_cols = j - kernel_size / 2;
         if (((row + offset_rows) >= 0) && ((row + offset_rows) < rows) &&
             ((col + offset_cols) >= 0) && ((col + offset_cols) < cols))
           *(gx + idx) += *(img + channel * rows * cols +
@@ -31,7 +31,7 @@ __global__ void gradients(float *img, float *kx, float *ky, float *gx,
     for (int i = 0; i < kernel_size; i++) {
       int offset_rows = i - kernel_size / 2;
       for (int j = 0; j < kernel_size; j++) {
-        int offset_cols = i - kernel_size / 2;
+        int offset_cols = j - kernel_size / 2;
         if (((row + offset_rows) >= 0) && ((row + offset_rows) < rows) &&
             ((col + offset_cols) >= 0) && ((col + offset_cols) < cols))
           *(gy + idx) += *(img + channel * rows * cols +
@@ -49,8 +49,6 @@ __global__ void gradientMagnitude(float *gx, float *gy, float *g, int rows,
     float sx = 0, sy = 0;
     for (int i = 0; i < channels; i++) {
       sx += *(gx + i * (rows * cols) + idx);
-    }
-    for (int i = 0; i < channels; i++) {
       sy += *(gy + i * (rows * cols) + idx);
     }
     *(g + idx) = sqrt(pow(sx, 2) + pow(sy, 2));
