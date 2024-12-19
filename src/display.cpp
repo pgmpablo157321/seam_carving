@@ -74,7 +74,7 @@ void ImageDisplay::update(float *pixels_src, int rows, int cols, int channels,
   } else if (channels == 1) {
     mat = cv::Mat(rows, cols, CV_8UC1, img_data);
   } else {
-    // Handle error
+    // TODO: Handle error
   }
 };
 
@@ -137,4 +137,8 @@ void ImageDisplay::scale() {
       *(pixel_array + i) *= (255. / max);
     }
   }
+}
+
+void ImageDisplay::imwrite(const std::string &window_name) {
+  cv::imwrite(window_name, mat);
 }

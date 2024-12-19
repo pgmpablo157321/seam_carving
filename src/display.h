@@ -26,4 +26,5 @@ public:
   void preserveWindowRatio(bool ratio);
   void displayImage();
   void scale();
+  void imwrite(const std::string &filename);
 };
