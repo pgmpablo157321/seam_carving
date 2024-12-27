@@ -1,6 +1,6 @@
-#include "display.h"
-#include "energy.h"
-#include "loader.h"
+#include "../src/display.h"
+#include "../src/energy.h"
+#include "../src/loader.h"
 
 #include <iostream>
 #include <stdio.h>
@@ -63,7 +63,7 @@ int main() {
   int *shape = l.getShape();
   int rows = *(shape + 1), cols = *(shape + 2), channels = *shape;
   float *img = l.getPixelArray();
-  float eps = 0.00001;
+  float eps = 0.0001;
 
   // Compute energy CPU
   float *energy = computeEnergy(img, rows, cols, channels);

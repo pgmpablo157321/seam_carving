@@ -1,7 +1,7 @@
-#include "display.h"
-#include "energy.h"
-#include "loader.h"
-#include "seam_carving.h"
+#include "../src/display.h"
+#include "../src/energy.h"
+#include "../src/loader.h"
+#include "../src/seam_carving.h"
 
 #include <iostream>
 #include <stdio.h>
@@ -115,7 +115,7 @@ int main() {
   int *shape = l.getShape();
   int rows = *(shape + 1), cols = *(shape + 2), channels = *shape;
   float *img = l.getPixelArray();
-  float eps = 0.00001;
+  float eps = 0.0001;
 
   // Compute path CPU
   float *energy = computeEnergy(img, rows, cols, channels);
@@ -144,14 +144,14 @@ int main() {
     }
   }
 
-  // ImageDisplay d(energy, rows, cols, 1, true);
+  // ImageDisplay d(paths_cpu, rows, cols, 1, true);
   // d.setWindowDims(cols / 2, rows);
-  // d.setWindowName("CPU Energy");
+  // d.setWindowName("CPU Energy Paths");
   // d.displayImage();
 
-  // ImageDisplay d_gpu(e, rows, cols, 1, true);
+  // ImageDisplay d_gpu(paths_gpu, rows, cols, 1, true);
   // d_gpu.setWindowDims(cols / 2, rows);
-  // d_gpu.setWindowName("GPU Energy");
+  // d_gpu.setWindowName("GPU Energy Paths");
   // d_gpu.displayImage();
 
   // ImageDisplay d_img(img, rows, cols, channels, true);

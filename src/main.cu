@@ -9,12 +9,12 @@
 #include <chrono>
 
 int main() {
-  Loader l("../assets/<name_of_image_file>", mode::Color);
+  Loader l("assets/02_chameleon.jpeg", mode::Color);
   int *shape = l.getShape();
   int rows = *(shape + 1), cols = *(shape + 2), channels = *shape;
   float *e = NULL, *img = NULL;
   // Number of removals
-  int n = 900;
+  int n = 200;
 
   GradientEnergy g(rows, cols, channels, l.getPixelArray(), Device::CPU,
                    Device::CPU);
