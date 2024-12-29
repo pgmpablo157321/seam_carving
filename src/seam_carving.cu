@@ -104,7 +104,19 @@ __global__ void verticalPathRemove(int *path, int *idx_mat, int *mat,
   }
 }
 
-__global__ void horizontalPathRemove() {}
+__global__ void horizontalPathRemove(int *path, int *idx_mat, int *mat,
+                                     int *target, int rows, int cols, int n) {
+  int idx = blockIdx.x * blockDim.x + threadIdx.x;
+  int row = idx / cols;
+  int col = idx % cols;
+  if (row < *(path + col)) {
+    *(target + idx) = *(idx_mat + idx);
+  } else if (row > *(path + col)) {
+    *(target + idx - cols) = *(idx_mat + idx);
+  } else {
+    *(mat + *(idx_mat + idx)) = n;
+  }
+}
 
 __global__ void verticalPathRemoveExternal(int *path, int *src, int *target,
                                            int rows, int cols, int channels) {
@@ -140,7 +152,40 @@ __global__ void verticalPathRemoveExternal(int *path, float *src, float *target,
   }
 }
 
-__global__ void horizontalPathRemoveExternal() {}
+__global__ void horizontalPathRemoveExternal(int *path, int *src, int *target,
+                                             int rows, int cols, int channels) {
+  int idx = blockIdx.x * blockDim.x + threadIdx.x;
+  int row = idx / cols;
+  int col = idx % cols;
+  if (row != *(path + col)) {
+    for (int ch = 0; ch < channels; ch++) {
+      int offset = ch * cols;
+      if (row > *(path + col)) {
+        offset += cols;
+      }
+      *(target + ch * rows * cols + idx - offset) =
+          *(src + ch * rows * cols + idx);
+    }
+  }
+}
+
+__global__ void horizontalPathRemoveExternal(int *path, float *src,
+                                             float *target, int rows, int cols,
+                                             int channels) {
+  int idx = blockIdx.x * blockDim.x + threadIdx.x;
+  int row = idx / cols;
+  int col = idx % cols;
+  if (row != *(path + col)) {
+    for (int ch = 0; ch < channels; ch++) {
+      int offset = ch * cols;
+      if (row > *(path + col)) {
+        offset += cols;
+      }
+      *(target + ch * rows * cols + idx - offset) =
+          *(src + ch * rows * cols + idx);
+    }
+  }
+}
 
 SeamCarving::SeamCarving(int rows, int cols, Direction d, Device input_device,
                          Device output_device) {
@@ -223,7 +268,11 @@ void SeamCarving::removeLeastEnergyPath() {
       (rows * cols + threads_per_block - 1) / threads_per_block;
 
   if (d == Direction::Horizontal) {
-
+    horizontalPathRemove<<<blocks_per_grid, threads_per_block>>>(
+        least_energy_path, idx_mat, removal_order_mat, auxiliar_int_buffer,
+        rows, cols, removed_paths);
+    cudaMemcpy(idx_mat, auxiliar_int_buffer, (rows - 1) * cols * sizeof(int),
+               cudaMemcpyDeviceToDevice);
   } else {
     verticalPathRemove<<<blocks_per_grid, threads_per_block>>>(
         least_energy_path, idx_mat, removal_order_mat, auxiliar_int_buffer,
@@ -241,7 +290,11 @@ void SeamCarving::removeExternalLeastEnergyPath(float *target, int channels) {
   assert(input_device == Device::GPU);
   assert(channels <= 4);
   if (d == Direction::Horizontal) {
-
+    horizontalPathRemoveExternal<<<blocks_per_grid, threads_per_block>>>(
+        least_energy_path, target, auxiliar_float_buffer, rows, cols, channels);
+    cudaMemcpy(target, auxiliar_float_buffer,
+               (rows - 1) * cols * channels * sizeof(float),
+               cudaMemcpyDeviceToDevice);
   } else {
     verticalPathRemoveExternal<<<blocks_per_grid, threads_per_block>>>(
         least_energy_path, target, auxiliar_float_buffer, rows, cols, channels);
@@ -258,7 +311,11 @@ void SeamCarving::removeExternalLeastEnergyPath(int *target, int channels) {
   int blocks_per_grid =
       (rows * cols + threads_per_block - 1) / threads_per_block;
   if (d == Direction::Horizontal) {
-
+    horizontalPathRemoveExternal<<<blocks_per_grid, threads_per_block>>>(
+        least_energy_path, target, auxiliar_int_buffer, rows, cols, channels);
+    cudaMemcpy(target, auxiliar_int_buffer,
+               (rows - 1) * cols * channels * sizeof(int),
+               cudaMemcpyDeviceToDevice);
   } else {
     verticalPathRemoveExternal<<<blocks_per_grid, threads_per_block>>>(
         least_energy_path, target, auxiliar_int_buffer, rows, cols, channels);
