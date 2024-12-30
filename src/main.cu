@@ -9,7 +9,7 @@
 #include <chrono>
 
 int main() {
-  Loader l("assets/02_chameleon.jpeg", mode::Color);
+  Loader l("assets/sample_noise_1.jpeg", mode::Color);
   int *shape = l.getShape();
   int rows = *(shape + 1), cols = *(shape + 2), channels = *shape;
   float *e = NULL, *img = NULL;
@@ -51,6 +51,7 @@ int main() {
   d.setWindowDims(cols / 2, (rows - n));
   d.setWindowName("Reduced Image");
   d.displayImage();
+  // d.imwrite("assets/sample_noise_reduced_1.jpeg");
 
   return 0;
 }

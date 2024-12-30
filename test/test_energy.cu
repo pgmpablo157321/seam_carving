@@ -59,7 +59,7 @@ float *computeEnergy(float *img, int rows, int cols, int channels) {
 }
 
 int main() {
-  Loader l("assets/02_chameleon.jpeg", mode::Color);
+  Loader l("assets/sample_noise_1.jpeg", mode::Color);
   int *shape = l.getShape();
   int rows = *(shape + 1), cols = *(shape + 2), channels = *shape;
   float *img = l.getPixelArray();

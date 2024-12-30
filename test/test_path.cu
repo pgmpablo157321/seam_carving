@@ -124,7 +124,7 @@ void removePath(float *energy, int *path, int rows, int cols) {
 }
 
 int main() {
-  Loader l("assets/02_chameleon.jpeg", mode::Color);
+  Loader l("assets/sample_noise_1.jpeg", mode::Color);
   int *shape = l.getShape();
   int rows = *(shape + 1), cols = *(shape + 2), channels = *shape;
   float *img = l.getPixelArray();
