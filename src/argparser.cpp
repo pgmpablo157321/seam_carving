@@ -1,13 +1,18 @@
 #include "argparser.h"
 
-void ArgumentParser::add_argument(const std::string &argname) {
+void ArgumentParser::add_argument(const std::string &argname,
+                                  const std::string &default_value = "",
+                                  bool required = true) {
 
   assert((argname != FUNCTION_NAME) &&
          "Argument name is reserved for special arguments");
   assert((arg_names.find(argname) == arg_names.end()) &&
          "Argument name already exists");
-  arg_names[argname] = 1;
+  arg_names[argname] = default_value;
   arg_list.push_back(argname);
+  if (required) {
+    required_args.push_back(argname);
+  }
 }
 
 ArgumentParser::ArgumentParser() {}
@@ -24,7 +29,12 @@ void ArgumentParser::parse_args(int argc, char *argv[]) {
     }
   }
   for (int i = 0; i < arg_list.size(); i++) {
-    assert(args.find(arg_list[i]) != args.end() &&
+    if (args.find(arg_list[i]) != args.end() && arg_names[arg_list[i]] != "") {
+      args[arg_list[i]] = arg_names[arg_list[i]];
+    }
+  }
+  for (int i = 0; i < required_args.size(); i++) {
+    assert(args.find(required_args[i]) != args.end() &&
            "A required argument was not provided");
   }
 }

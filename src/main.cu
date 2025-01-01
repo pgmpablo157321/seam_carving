@@ -11,10 +11,11 @@
 
 ArgumentParser get_argument_parser(int argc, char *argv[]) {
   ArgumentParser parser;
-  parser.add_argument("--n");
-  parser.add_argument("--image_path");
-  parser.add_argument("--mode");
-  parser.add_argument("--direction");
+  parser.add_argument("--n", "100", false);
+  parser.add_argument("--image_path", "", true);
+  parser.add_argument("--mode", "color", false);
+  parser.add_argument("--direction", "h", false);
+  parser.add_argument("--config", "", false);
   parser.parse_args(argc, argv);
   return parser;
 }
