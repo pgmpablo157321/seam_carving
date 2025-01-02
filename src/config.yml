@@ -1,0 +1,4 @@
+- n: 100
+- image_path: assets/sample_noise_1.jpeg
+- mode: color
+- direction: v

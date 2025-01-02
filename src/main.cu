@@ -1,9 +1,11 @@
 #include "argparser.h"
+#include "config_parser.h"
 #include "display.h"
 #include "energy.h"
 #include "loader.h"
 
 #include "seam_carving.h"
+#include <fstream>
 #include <iostream>
 #include <stdio.h>
 // Import timing
@@ -12,7 +14,7 @@
 ArgumentParser get_argument_parser(int argc, char *argv[]) {
   ArgumentParser parser;
   parser.add_argument("--n", "100", false);
-  parser.add_argument("--image_path", "", true);
+  parser.add_argument("--image_path", "", false);
   parser.add_argument("--mode", "color", false);
   parser.add_argument("--direction", "h", false);
   parser.add_argument("--config", "", false);
@@ -21,22 +23,44 @@ ArgumentParser get_argument_parser(int argc, char *argv[]) {
 }
 
 int main(int argc, char *argv[]) {
-  // Parse the arguments
   ArgumentParser parser = get_argument_parser(argc, argv);
-  std::string image_path = parser.get_argument("--image_path");
+
+  std::string image_path;
   mode color_mode;
   Direction direction;
-  int n = stoi(parser.get_argument("--n"));
-  if (parser.get_argument("--mode") == "color") {
-    color_mode = mode::Color;
+  int n;
+  if (parser.get_argument("--config") != "") {
+    // Parse the arguments from config file
+    ConfigParser config(parser.get_argument("--config"));
+    image_path = config.get_argument("image_path");
+    n = stoi(config.get_argument("n"));
+    if (config.get_argument("mode") == "color") {
+      color_mode = mode::Color;
+    } else {
+      color_mode = mode::GrayScale;
+    }
+    if (config.get_argument("direction") == "h") {
+      direction = Direction::Horizontal;
+    } else {
+      direction = Direction::Vertical;
+    }
   } else {
-    color_mode = mode::GrayScale;
+    // Parse the arguments from command line
+    image_path = parser.get_argument("--image_path");
+    n = stoi(parser.get_argument("--n"));
+    if (parser.get_argument("--mode") == "color") {
+      color_mode = mode::Color;
+    } else {
+      color_mode = mode::GrayScale;
+    }
+    if (parser.get_argument("--direction") == "h") {
+      direction = Direction::Horizontal;
+    } else {
+      direction = Direction::Vertical;
+    }
   }
-  if (parser.get_argument("--direction") == "h") {
-    direction = Direction::Horizontal;
-  } else {
-    direction = Direction::Vertical;
-  }
+
+  // Load image and other variables
   Loader l(image_path, color_mode);
   int *shape = l.getShape();
   int rows = *(shape + 1), cols = *(shape + 2), channels = *shape;

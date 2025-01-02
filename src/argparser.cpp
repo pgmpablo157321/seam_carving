@@ -1,8 +1,10 @@
 #include "argparser.h"
 
+ArgumentParser::ArgumentParser() {}
+
 void ArgumentParser::add_argument(const std::string &argname,
-                                  const std::string &default_value = "",
-                                  bool required = true) {
+                                  const std::string &default_value,
+                                  bool required) {
 
   assert((argname != FUNCTION_NAME) &&
          "Argument name is reserved for special arguments");
@@ -14,8 +16,6 @@ void ArgumentParser::add_argument(const std::string &argname,
     required_args.push_back(argname);
   }
 }
-
-ArgumentParser::ArgumentParser() {}
 
 void ArgumentParser::parse_args(int argc, char *argv[]) {
   for (int i = 0; i < argc; i++) {
@@ -40,6 +40,9 @@ void ArgumentParser::parse_args(int argc, char *argv[]) {
 }
 
 std::string ArgumentParser::get_argument(const std::string &argname) {
+  if (argname == "--config" && args.find(argname) == args.end()) {
+    return "";
+  }
   assert((args.find(argname) != args.end()) && "Argument does not exists");
   return args[argname];
 }
